@@ -71,8 +71,25 @@
       </transition-group>
     </ul>
     </div>
+    <div>
+    <beautiful-chat
+      :participants="participants"
+      :titleImageUrl="titleImageUrl"
+      :onMessageWasSent="onMessageWasSent"
+      :messageList="messageList"
+      :newMessagesCount="newMessagesCount"
+      :isOpen="isChatOpen"
+      :close="closeChat"
+      :open="openChat"
+      :showEmoji="true"
+      :showFile="true"
+      :showTypingIndicator="showTypingIndicator"
+      :colors="colors"
+      :alwaysScrollToBottom="alwaysScrollToBottom"
+      :messageStyling="messageStyling" />
   </div>
-
+  </div>
+  
     
   
 </template>
@@ -85,10 +102,10 @@ export default {
   },
   sockets: {
         NuevaTarea: function (nueva) {
-            this.tareas.push(nueva);
+            this.tareas=JSON.parse(nueva);
         },
         Notas: function(notas){
-          this.tareas=notas;
+          this.tareas=JSON.parse(notas);
         },
 
         NuevoNick: function(datos){
@@ -97,6 +114,10 @@ export default {
             this.creador=datos.nick;
           }
           
+        },
+
+        Inicio: function(notas){
+          this.tareas= JSON.parse(notas);
         }
 
         
@@ -130,29 +151,26 @@ export default {
         creador: this.creador,
       };
       this.tareas.push(this.nueva);
-      this.$socket.emit('NuevaTarea', this.nueva);
+      this.$socket.emit('NuevaTarea', JSON.stringify(this.nueva));
       this.nombre = "";
     },
     borrar: function(index) {
       this.tareas.splice(index, 1);
-      this.$socket.emit('Notas', this.tareas);
+      this.$socket.emit('Notas', JSON.stringify(this.tareas));
   
     },
     borraCompletadas: function() {
       this.tareas = this.tareas.filter(tarea => !tarea.completada);
-      this.$socket.emit('Notas', this.tareas);
+      this.$socket.emit('Notas', JSON.stringify(this.tareas));
       
     },
     prioridad: function(index, n) {
       this.tareas[index].prioridad = n;
-      this.$socket.emit('Notas', this.tareas);
+      this.$socket.emit('Notas', JSON.stringify(this.tareas));
     }
   },
 
-  updated: function() {
-    localStorage.setItem("recordatorios-vue", JSON.stringify(this.tareas));
-    
-  },
+
 
   computed: {
     tareasPendientes: function() {

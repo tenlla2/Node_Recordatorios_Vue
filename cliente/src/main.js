@@ -10,6 +10,8 @@ import router from './router'
 import BootstrapVue from "bootstrap-vue"
 import PrettyCheckbox from 'pretty-checkbox-vue';
 import VueSocketIO from 'vue-socket.io'
+import Chat from 'vue-beautiful-chat'
+Vue.use(Chat)
  
 Vue.use(new VueSocketIO({
     debug: true,

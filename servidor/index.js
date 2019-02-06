@@ -7,13 +7,15 @@ nickServidor = [];
 
 io.on('connection', function(socket){
   console.log('a user connected');
+  socket.emit('Inicio',JSON.stringify(notaServidor));
+
   socket.on('NuevaTarea', function (nueva) {
-    socket.broadcast.emit('NuevaTarea',nueva);
-    console.log(nueva);
+    notaServidor.push(JSON.parse(nueva));
+    socket.broadcast.emit('NuevaTarea',JSON.stringify(notaServidor));
   });
     socket.on('Notas', function (notas) {
-    notaServidor = notas;
-    socket.broadcast.emit('Notas',notaServidor);
+    notaServidor = JSON.parse(notas);
+    socket.broadcast.emit('Notas',notas);
  
   });
 
