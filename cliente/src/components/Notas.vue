@@ -12,6 +12,19 @@
         @keyup.enter="anadeNick"
       >
     </div>
+    <div class="col-12">
+                    <file-pond
+                    name="test"
+                    ref="pond"
+                    label-idle="Arrastra aquí el archivo..."
+                    allow-multiple="false"
+                    accepted-file-types="image/jpeg, image/png,image/jpg"
+                    allowImagePreview="false"
+                    server="http://localhost:3000/files"
+                    v-bind:files="myFiles"
+                    v-on:init="handleFilePondInit"
+                  />
+                  </div>
     <div v-if="estado">
       <div class="form-group">
         <input
@@ -42,7 +55,7 @@
             :key="tarea.fecha.toString()"
           >
             <div class="row">
-              <input class="checkbox-circle" type="checkbox" v-model="tarea.completada">
+              <input class="checkbox-circle" type="checkbox" v-model="tarea.completada" @click="cambiaCheck(index)">
               <h1
                 v-bind:class="[{completado : tarea.completada},'col-11','d-flex justify-content-start']"
               >{{tarea.nombre}}</h1>
@@ -77,19 +90,7 @@
                 <small>Creado por: {{tarea.creador}}</small>
                 <br> <br>
                 <div class="row">
-                  <div class="col-12">
-                    <file-pond
-                    name="test"
-                    ref="pond"
-                    label-idle="Arrastra aquí el archivo..."
-                    allow-multiple="false"
-                    accepted-file-types="image/jpeg, image/png,image/jpg"
-                    allowImagePreview="false"
-                    server
-                    v-bind:files="myFiles"
-                    v-on:init="handleFilePondInit"
-                  />
-                  </div>
+                  
                   
                 </div>
               </div>
@@ -154,15 +155,17 @@ export default {
       if (datos.estado) {
         this.estado = true;
         this.creador = datos.nick;
-        this.messageList.push(JSON.parse(datos.ChatUsuarios));
       }
     },
 
     UsuariosChat: function(data){
-      this.participants= JSON.parse(data);
+      this.participants = JSON.parse(data);
     },
     Inicio: function(notas) {
       this.tareas = JSON.parse(notas);
+    },
+    Mensaje: function(data){
+      this.messageList.push(JSON.parse(data));
     },
 
   },
@@ -178,10 +181,7 @@ export default {
       creador: "",
       participants: [], // the list of all the participant of the conversation. `name` is the user name, `id` is used to establish the author of a message, `imageUrl` is supposed to be the user avatar.
       titleImageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
-      messageList: [
-          { type: 'text', author: `me`, data: { text: `Say yes!` } },
-          { type: 'text', author: `user1`, data: { text: `No.` } }
-      ], // the list of the messages to show, can be paginated and adjusted dynamically
+      messageList: [], // the list of the messages to show, can be paginated and adjusted dynamically
       newMessagesCount: 0,
       isChatOpen: false, // to determine whether the chat window should be open or closed
       showTypingIndicator: '', // when set to a value matching the participant.id it shows the typing indicator for the specific user
@@ -252,15 +252,21 @@ export default {
       this.tareas[index].prioridad = n;
       this.$socket.emit("Notas", JSON.stringify(this.tareas));
     },
+    cambiaCheck: function(index) {
+      this.tareas[index].completada = !this.tareas[index].completada;
+      this.$socket.emit("Notas", JSON.stringify(this.tareas));
+    },
+
     //chat
     sendMessage (text) {
       if (text.length > 0) {
         this.newMessagesCount = this.isChatOpen ? this.newMessagesCount : this.newMessagesCount + 1;
         this.onMessageWasSent({ author: 'me', type: 'text', data: { text } });
-        this.$socket.emit("Mensaje", JSON.stringify({ author: this.creador, type: 'text', data: { text } }));
+        
       }
     },
     onMessageWasSent (message) {
+      this.$socket.emit("Mensaje", JSON.stringify({ author: this.creador, type: 'text', data:  message.data  }));
       // called when the user sends a message
       this.messageList = [ ...this.messageList, message ]
     },
