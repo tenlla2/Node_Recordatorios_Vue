@@ -168,6 +168,7 @@ export default {
       this.messageList.push(JSON.parse(data));
     },
 
+
   },
   data() {
     return {

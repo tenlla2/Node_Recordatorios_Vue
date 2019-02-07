@@ -81,10 +81,11 @@ io.on('connection', function(socket){
         indice = nickServidor.indexOf(datos.nick);
         indice2 = nickServidor.indexOf(datos.nick);
         nickServidor.splice(indice,1);
-        io.emit('ActualizaSalaChat',nickServidor);
+        ChatUsuarios.splice(indice,1);
+        io.emit('UsuariosChat',JSON.stringify(ChatUsuarios));
         console.log('user '+datos.nick+ ' disconnected');
+        console.log(ChatUsuarios);
         console.log(nickServidor);
-    
       });
     }
 
