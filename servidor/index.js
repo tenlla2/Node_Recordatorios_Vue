@@ -83,6 +83,10 @@ io.on('connection', function(socket){
         nickServidor.splice(indice,1);
         ChatUsuarios.splice(indice,1);
         io.emit('UsuariosChat',JSON.stringify(ChatUsuarios));
+        for(i=0; i<ChatUsuarios.length; i++){
+          ChatUsuarios[i].id="user"+(i+1);
+        }
+        cont--;
         console.log('user '+datos.nick+ ' disconnected');
         console.log(ChatUsuarios);
         console.log(nickServidor);
