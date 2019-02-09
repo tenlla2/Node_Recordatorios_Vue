@@ -28,14 +28,18 @@ app.use(formidableMiddleware({
   encoding: 'utf-8',
   uploadDir: './files',
   multiples: true, // req.files to be arrays of files
+  keepExtensions: true,
+  maxFieldsSize : 2 * 1024 * 1024,
 }));
 app.post('/files', (req, res) => {
   console.log(req.files)
   res.send(req.files)
+
 })
 app.get('/files', (req, res) => {
-  console.log(req.files)
+
   res.send(req.files[0])
+
 })
 
 
