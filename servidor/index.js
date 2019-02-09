@@ -43,6 +43,7 @@ notaServidor =[];
 nickServidor = [];
 ChatUsuarios=[];
 cont=1;
+fondoChat='https://iconsplace.com/wp-content/uploads/_icons/40e0d0/256/png/connected-icon-17-256.png'
 
 io.on('connection', function(socket){
   console.log('a user connected');
@@ -67,15 +68,18 @@ io.on('connection', function(socket){
     else{
       datos.estado=true;
       nickServidor.push(datos.nick);
+      suID='user'+cont;
       ChatUsuarios.push({
-        id: 'user'+cont,
+        id: suID,
         name: datos.nick,
         imageUrl: ''
       });
       cont ++;
       console.log(ChatUsuarios);
       socket.emit('NuevoNick',datos);
+      // socket.emit('Typing',suID);
       io.emit('UsuariosChat',JSON.stringify(ChatUsuarios));
+      io.emit('Fondo',fondoChat);
 
       socket.on('disconnect', function(){
         indice = nickServidor.indexOf(datos.nick);

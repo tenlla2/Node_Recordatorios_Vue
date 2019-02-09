@@ -160,13 +160,23 @@ export default {
 
     UsuariosChat: function(data){
       this.participants = JSON.parse(data);
+
     },
     Inicio: function(notas) {
       this.tareas = JSON.parse(notas);
     },
     Mensaje: function(data){
       this.messageList.push(JSON.parse(data));
+      this.newMessagesCount++;
     },
+
+    // Typing: function (dato) {
+    //   this.showTypingIndicator=dato;
+    //   console.log(dato);
+    //   }
+    // Fondo: function(img){
+    //   this.titleImageUrl=img;
+    // }
 
 
   },
