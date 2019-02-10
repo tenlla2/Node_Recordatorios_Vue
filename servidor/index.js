@@ -62,6 +62,12 @@ io.on('connection', function(socket){
     socket.broadcast.emit('Notas',notas);
  
   });
+  socket.on('borrar', function (notas) {
+    notaServidor = JSON.parse(notas);
+    socket.broadcast.emit('Notas',notas);
+ 
+  });
+
 
   socket.on('NuevoNick', function (datos) {
     
@@ -78,12 +84,18 @@ io.on('connection', function(socket){
         name: datos.nick,
         imageUrl: ''
       });
+     
       cont ++;
       console.log(ChatUsuarios);
       socket.emit('NuevoNick',datos);
       // socket.emit('Typing',suID);
       io.emit('UsuariosChat',JSON.stringify(ChatUsuarios));
       io.emit('Fondo',fondoChat);
+
+      socket.on('borrar', function (notas) {
+        socket.broadcast.emit('borrar',datos.nick);
+     
+      });
 
       socket.on('disconnect', function(){
         indice = nickServidor.indexOf(datos.nick);
@@ -98,6 +110,7 @@ io.on('connection', function(socket){
         console.log('user '+datos.nick+ ' disconnected');
         console.log(ChatUsuarios);
         console.log(nickServidor);
+        io.emit('Desconectado',datos.nick);
       });
     }
 
@@ -111,10 +124,7 @@ io.on('connection', function(socket){
   });
 
   
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
 
-  });
 
 });
 

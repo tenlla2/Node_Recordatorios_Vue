@@ -3,6 +3,7 @@
     <br>
 
     <div id="tit" class="h1">Proyecto Vue.js- Antonio Tenllado Humanes</div>
+    <notifications group="foo"/>
     <div class="form-group" v-if="!estado">
       <input
         type="text"
@@ -13,18 +14,18 @@
       >
     </div>
     <div class="col-12">
-                    <file-pond
-                    name="test"
-                    ref="pond"
-                    label-idle="Arrastra aquí el archivo..."
-                    allow-multiple="false"
-                    accepted-file-types="image/jpeg, image/png,image/jpg"
-                    allowImagePreview="false"
-                    server="http://localhost:3000/files"
-                    v-bind:files="myFiles"
-                    v-on:init="handleFilePondInit"
-                  />
-                  </div>
+      <file-pond
+        name="test"
+        ref="pond"
+        label-idle="Arrastra aquí el archivo..."
+        allow-multiple="false"
+        accepted-file-types="image/jpeg, image/png,image/jpg"
+        allowImagePreview="false"
+        server="http://localhost:3000/files"
+        v-bind:files="myFiles"
+        v-on:init="handleFilePondInit"
+      />
+    </div>
     <div v-if="estado">
       <div class="form-group">
         <input
@@ -55,7 +56,12 @@
             :key="tarea.fecha.toString()"
           >
             <div class="row">
-              <input class="checkbox-circle" type="checkbox" v-model="tarea.completada" @click="cambiaCheck(index)">
+              <input
+                class="checkbox-circle"
+                type="checkbox"
+                v-model="tarea.completada"
+                @click="cambiaCheck(index)"
+              >
               <h1
                 v-bind:class="[{completado : tarea.completada},'col-11','d-flex justify-content-start']"
               >{{tarea.nombre}}</h1>
@@ -88,36 +94,33 @@
                   Añadido hace {{tarea.fecha | moment("from", "now", true)}} ago
                 </small>
                 <small>Creado por: {{tarea.creador}}</small>
-                <br> <br>
-                <div class="row">
-                  
-                  
-                </div>
+                <br>
+                <br>
+                <div class="row"></div>
               </div>
             </div>
           </li>
         </transition-group>
       </ul>
       <div>
-      <beautiful-chat
-        :participants="participants"
-        :titleImageUrl="titleImageUrl"
-        :onMessageWasSent="onMessageWasSent"
-        :messageList="messageList"
-        :newMessagesCount="newMessagesCount"
-        :isOpen="isChatOpen"
-        :close="closeChat"
-        :open="openChat"
-        :showEmoji="true"
-        :showFile="true"
-        :showTypingIndicator="showTypingIndicator"
-        :colors="colors"
-        :alwaysScrollToBottom="alwaysScrollToBottom"
-        :messageStyling="messageStyling"
-      />
+        <beautiful-chat
+          :participants="participants"
+          :titleImageUrl="titleImageUrl"
+          :onMessageWasSent="onMessageWasSent"
+          :messageList="messageList"
+          :newMessagesCount="newMessagesCount"
+          :isOpen="isChatOpen"
+          :close="closeChat"
+          :open="openChat"
+          :showEmoji="true"
+          :showFile="true"
+          :showTypingIndicator="showTypingIndicator"
+          :colors="colors"
+          :alwaysScrollToBottom="alwaysScrollToBottom"
+          :messageStyling="messageStyling"
+        />
+      </div>
     </div>
-    </div>
-    
   </div>
 </template>
 
@@ -146,29 +149,56 @@ export default {
   sockets: {
     NuevaTarea: function(nueva) {
       this.tareas = JSON.parse(nueva);
+       this.$notify({
+          group: "foo",
+           type: 'success',
+          title: "Gestión de Recordatorios!",
+          text: "El usuario "+this.creador +" ha creado una nota."
+        });
     },
     Notas: function(notas) {
       this.tareas = JSON.parse(notas);
+    },
+     borrar: function(datos) {
+       this.$notify({
+          group: "foo",
+           type: 'warn',
+          title: "Gestión de Recordatorios!",
+          text: "El usuario "+datos +" ha borrado una nota."
+        });
     },
 
     NuevoNick: function(datos) {
       if (datos.estado) {
         this.estado = true;
         this.creador = datos.nick;
+        this.$notify({
+          group: "foo",
+           type: 'success',
+          title: "Acceso de Usuario",
+          text: "Bienvenido "+this.creador
+        });
       }
     },
 
-    UsuariosChat: function(data){
+    UsuariosChat: function(data) {
       this.participants = JSON.parse(data);
-
     },
     Inicio: function(notas) {
       this.tareas = JSON.parse(notas);
     },
-    Mensaje: function(data){
+    Mensaje: function(data) {
       this.messageList.push(JSON.parse(data));
       this.newMessagesCount++;
     },
+    Desconectado: function(data){
+       this.$notify({
+          group: "foo",
+           type: 'error',
+          title: "Desconexión",
+          text: "Hasta pronto "+data
+        });
+    }
 
     // Typing: function (dato) {
     //   this.showTypingIndicator=dato;
@@ -177,8 +207,6 @@ export default {
     // Fondo: function(img){
     //   this.titleImageUrl=img;
     // }
-
-
   },
   data() {
     return {
@@ -187,42 +215,43 @@ export default {
       nombre: "",
       busqueda: "",
       nick: "",
-      cont:1,
+      cont: 1,
       estado: false,
       creador: "",
       participants: [], // the list of all the participant of the conversation. `name` is the user name, `id` is used to establish the author of a message, `imageUrl` is supposed to be the user avatar.
-      titleImageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
+      titleImageUrl:
+        "https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png",
       messageList: [], // the list of the messages to show, can be paginated and adjusted dynamically
       newMessagesCount: 0,
       isChatOpen: false, // to determine whether the chat window should be open or closed
-      showTypingIndicator: '', // when set to a value matching the participant.id it shows the typing indicator for the specific user
+      showTypingIndicator: "", // when set to a value matching the participant.id it shows the typing indicator for the specific user
       colors: {
         header: {
-          bg: '#4e8cff',
-          text: '#ffffff'
+          bg: "#4e8cff",
+          text: "#ffffff"
         },
         launcher: {
-          bg: '#4e8cff'
+          bg: "#4e8cff"
         },
         messageList: {
-          bg: '#ffffff'
+          bg: "#ffffff"
         },
         sentMessage: {
-          bg: '#4e8cff',
-          text: '#ffffff'
+          bg: "#4e8cff",
+          text: "#ffffff"
         },
         receivedMessage: {
-          bg: '#eaeaea',
-          text: '#222222'
+          bg: "#eaeaea",
+          text: "#222222"
         },
         userInput: {
-          bg: '#f4f7f9',
-          text: '#565867'
+          bg: "#f4f7f9",
+          text: "#565867"
         }
       }, // specifies the color scheme for the component
       alwaysScrollToBottom: false, // when set to true always scrolls the chat to the bottom when new events are in (new message, user starts typing...)
       messageStyling: true // enables *bold* /emph/ _underline_ and such (more info at github.com/mattezza/msgdown)
-    }
+    };
   },
   methods: {
     handleFilePondInit: function() {
@@ -254,6 +283,7 @@ export default {
     borrar: function(index) {
       this.tareas.splice(index, 1);
       this.$socket.emit("Notas", JSON.stringify(this.tareas));
+      this.$socket.emit("borrar", JSON.stringify(this.tareas));
     },
     borraCompletadas: function() {
       this.tareas = this.tareas.filter(tarea => !tarea.completada);
@@ -269,29 +299,38 @@ export default {
     },
 
     //chat
-    sendMessage (text) {
+    sendMessage(text) {
       if (text.length > 0) {
-        this.newMessagesCount = this.isChatOpen ? this.newMessagesCount : this.newMessagesCount + 1;
-        this.onMessageWasSent({ author: 'me', type: 'text', data: { text } });
-        
+        this.newMessagesCount = this.isChatOpen
+          ? this.newMessagesCount
+          : this.newMessagesCount + 1;
+        this.onMessageWasSent({ author: "me", type: "text", data: { text } });
       }
     },
-    onMessageWasSent (message) {
-      this.$socket.emit("Mensaje", JSON.stringify({ author: this.creador, type: 'text', data:  message.data  }));
+    onMessageWasSent(message) {
+      this.$socket.emit(
+        "Mensaje",
+        JSON.stringify({
+          author: this.creador,
+          type: "text",
+          data: message.data
+        })
+      );
       // called when the user sends a message
-      this.messageList = [ ...this.messageList, message ]
+      this.messageList = [...this.messageList, message];
     },
-    openChat () {
+    openChat() {
       // called when the user clicks on the fab button to open the chat
-      this.isChatOpen = true
-      this.newMessagesCount = 0
+      this.isChatOpen = true;
+      this.newMessagesCount = 0;
     },
-    closeChat () {
+    closeChat() {
       // called when the user clicks on the botton to close the chat
-      this.isChatOpen = false
+      this.isChatOpen = false;
     }
   },
 
+  created: {},
   computed: {
     tareasPendientes: function() {
       return this.tareas.filter(tarea => !tarea.completada).length;
@@ -302,7 +341,8 @@ export default {
         .filter(tarea =>
           tarea.nombre.toLowerCase().startsWith(this.busqueda.toLowerCase())
         );
-    }
+    },
+    mounted: {}
 
     //filepond
   },
